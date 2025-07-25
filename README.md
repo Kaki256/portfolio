@@ -1,29 +1,48 @@
-# my-portfolio
+# My Portfolio
 
-This template should help get you started developing with Vue 3 in Vite.
+これは、私のポートフォリオサイトのソースコードです。
+サイトは [こちら](https://kaki256.github.io/portfolio/) からご覧いただけます。
 
-## Recommended IDE Setup
+## 概要
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+このサイトは、私の作品、スキル、経歴などを紹介するためのものです。
+Vue.js と TypeScript を使用して開発しており、クールでポップなデザインを目指しました。
 
-## Customize configuration
+## 機能
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **Works:** 開発したアプリケーションや制作した謎解きなどを紹介します。
+- **Skills:** 私のスキルセットをカテゴリ別に表示します。
+- **About:** 私の経歴や自己紹介を記載します。
+- **Riddles:** 好きな謎解き公演を紹介します。
 
-## Project Setup
+## 使用技術
 
-```sh
-npm install
-```
+- **フロントエンド:**
+  - Vue.js
+  - TypeScript
+  - Vite
+- **その他:**
+  - Figma (デザイン)
+  - Git
 
-### Compile and Hot-Reload for Development
+## 制作物
 
-```sh
-npm run dev
-```
+### 開発
 
-### Compile and Minify for Production
+- **ポートフォリオサイト:** このサイトです。
+- **Circuledge:** Markdown のドキュメントを全文検索できる構造化されたナレッジベースです。
+- **WarpHorizon:** 2024年冬のハッカソンで制作したゲームです。
+- **Cross the C:** パズルと謎解きを組み合わせたゲームです。
 
-```sh
-npm run build
-```
+### 謎解き制作
+
+- **リミットアンサー:** C-lock-row 制作の謎解き公演です。
+- **アルケミーアカデミー:** C-lock-row 制作の謎解き公演です。
+- **謎解き！ロボットメイキング:** C-lock-row と工大祭実行委員会の合同企画です。
+- **TOP SPOT:** C-lock-row 制作の謎解き公演です。
+- **みえる謎展:** C-lock-row 制作の謎解きコンテンツです。
+- **Rooms:** VRChat で遊べる謎解きゲームです。
+
+## 今後の展望
+
+今後も新しい作品を随時追加していく予定です。

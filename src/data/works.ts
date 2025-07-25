@@ -1,0 +1,142 @@
+import type { Work } from '../types/work'
+
+export const works: Work[] = [
+  {
+    id: 'work1',
+    title: 'ポートフォリオサイト',
+    description:
+      'Vue.js と TypeScript で作成した自己紹介サイト。クールでポップなデザインを意識しました。GitHub Actions を用いた自動デプロイも設定済みです。',
+    technologies: ['Vue.js', 'TypeScript', 'CSS', 'GitHub Actions'],
+    imageUrl: 'https://placehold.co/600x400/00b894/FFFFFF/png?text=Portfolio',
+    demoUrl: 'https://kaki256.github.io/portfolio/',
+    repoUrl: 'https://github.com/kaki256/portfolio',
+    type: 'development',
+  },
+
+  {
+    id: 'riddle1',
+    title: 'リミットアンサー',
+    description:
+      'C-lock-row 制作の謎解き公演。\n2023年10月末の工大祭に向け制作され、翌年1月の[謎解きフェスタ](https://huntersvillage.jp/quest/nazofesta-takarush8)にて再演された。',
+    technologies: ['企画', '謎制作'],
+    imageUrl: '/src/assets/images/MV/LimitAnswer.png',
+    type: 'riddle_solving',
+    difficulty: 2,
+    participants: '2-4人向け',
+    eventDate: '2023年10月',
+    eventFormat: 'ルーム型',
+    duration: '30分',
+  },
+  {
+    id: 'riddle2',
+    title: 'アルケミーアカデミー',
+    description:
+      'C-lock-row 制作の謎解き公演。\n2024年10月末の工大祭に向け制作された。',
+    technologies: ['企画', 'パズル設計', '物品制作'],
+    imageUrl: '/src/assets/images/MV/AlchemyAcademy.png',
+    type: 'riddle_solving',
+    difficulty: 4,
+    participants: '2-4人向け',
+    eventDate: '2024年10月',
+    eventFormat: 'ルーム型',
+    duration: '60分',
+  },
+  {
+    id: 'riddle3',
+    title: '謎解き！ロボットメイキング',
+    description:
+      'C-lock-row と工大祭実行委員会の合同企画。\n2024年10月末の工大祭で遊べた周遊型謎解きコンテンツ。\nハードウェアコースを担当しました。\nリンク: https://koudaisai.jp/solving/',
+    technologies: ['企画', '謎制作', '物品制作'],
+    imageUrl: '/src/assets/images/MV/RobotMaking.png',
+    type: 'riddle_solving',
+    difficulty: 1,
+    participants: '1-2人向け',
+    eventDate: '2024年10月',
+    eventFormat: '周遊型',
+    duration: '1-2時間',
+    location: '工大祭特設会場',
+    role: '企画、ハードウェアコース担当',
+    collaborators: ['工大祭実行委員会', 'C-lock-row'],
+  },
+  {
+    id: 'riddle4',
+    title: 'TOP SPOT',
+    description:
+      'C-lock-row 制作の謎解き公演。\n[謎キャン2025](https://ivory965016.studio.site/)に向け制作され、[謎解きフェスタ](https://huntersvillage.jp/quest/nazofesta-takarush18)にて再演された。',
+    technologies: ['企画', '謎制作'],
+    imageUrl: '/src/assets/images/MV/TOPSPOT.png',
+    type: 'riddle_solving',
+    difficulty: 5,
+    participants: '3-4人向け',
+    eventDate: '2025年3月',
+    eventFormat: 'ルーム型',
+    duration: '40分',
+  },
+  {
+    id: 'riddle5',
+    title: 'みえる謎展',
+    description:
+      'C-lock-row 制作の謎解きコンテンツ。\n2025年3月の[謎キャン2025](https://ivory965016.studio.site/)に向け制作された。\n\nWeb (解答判定サイト) 制作も担当した。',
+    technologies: ['企画', '謎制作', 'Web制作', 'html'],
+    imageUrl: '/src/assets/images/MV/Mieruna.png',
+    type: 'riddle_solving',
+    difficulty: 4,
+    participants: '1-2人向け',
+    eventDate: '2025年3月',
+    eventFormat: 'ルーム周遊型',
+    duration: '1-2時間',
+  },
+  {
+    id: 'riddle6',
+    title: 'Rooms',
+    description:
+      'VRChat で遊べる謎解きゲーム。\nリンク: https://vrchat.com/home/launch?worldId=wrld_75aedc87-3557-45fe-b29d-740e6957ade5',
+    technologies: ['謎制作'],
+    imageUrl: '/src/assets/images/MV/Rooms.png',
+    type: 'riddle_solving',
+    difficulty: 3,
+    participants: '1-4人向け',
+    eventDate: '2025年3月',
+    eventFormat: 'VRChat',
+    duration: '3-5時間',
+  },
+
+  {
+    id: 'game1',
+    title: 'WarpHorizon',
+    description:
+      '2024年冬に traP が主催で行った 冬ハッカソンで制作したゲーム。\n\nUnity と C# を使用して開発しました。\n\n[リンク]()',
+    technologies: ['プログラミング担当'],
+    imageUrl: '/src/assets/images/MV/WarpHorizon.png',
+    type: 'game',
+    eventDate: '2025年2月',
+    role: 'プログラミング担当',
+    collaborators: ['サークルメンバー3名'],
+  },
+  {
+    id: 'game2',
+    title: 'Cross the C',
+    description:
+      '盤面で行われるパズルと室内に散りばめられた謎を解き明かし、隠された秘密を探っていく…',
+    technologies: ['企画', 'パズル制作', 'プログラミング担当'],
+    imageUrl:
+      'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/3382690/header.jpg?t=1740986668',
+    type: 'game',
+    collaborators: ['サークルメンバー約10名'],
+    demoUrl: 'https://store.steampowered.com/app/3382690/Cross_the_C/',
+  },
+  {
+    id: 'work2',
+    title: 'Circuledge',
+    description:
+      'Circuledge は、Markdown のドキュメントを全文検索できる 構造化されたナレッジベースです。',
+    technologies: ['Vite', 'Vue', 'TypeScript', 'Pinia'],
+    imageUrl: 'https://placehold.co/600x400/6c5ce7/FFFFFF/png?text=Circuledge',
+    demoUrl: 'http://circuledge.trap.show/notes/',
+    repoUrl: 'https://github.com/traP-jp/circuledge-frontend',
+    type: 'development',
+    eventDate: '2025年6月',
+    role: 'フロントエンド開発',
+    collaborators: ['サークルメンバー7名'],
+  },
+]
