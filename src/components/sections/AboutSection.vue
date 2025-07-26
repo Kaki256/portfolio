@@ -64,7 +64,7 @@ const activities = [
     <div class="profile">
       <div class="profile-image">
         <img
-          src="../../assets/images/profile.png"
+          src="/profile.png"
           alt="Profile Image"
         >
       </div>

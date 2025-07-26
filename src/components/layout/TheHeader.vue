@@ -122,7 +122,7 @@ const name = 'Pina641'
         >
           <div class="icon-container">
             <img
-              src="@/assets/images/logos/traP_logo_icon.svg"
+              src="/logos/traP_logo_icon.svg"
               alt="traP Logo"
               class="logo-image trap-logo"
             >
@@ -141,7 +141,7 @@ const name = 'Pina641'
         >
           <div class="icon-container">
             <img
-              src="@/assets/images/logos/AtCoder_logo.png"
+              src="/logos/AtCoder_logo.png"
               alt="AtCoder Logo"
               class="logo-image atcoder-logo"
             >

@@ -19,7 +19,7 @@ export const works: Work[] = [
     description:
       'C-lock-row 制作の謎解き公演。\n2023年10月末の工大祭に向け制作され、翌年1月の[謎解きフェスタ](https://huntersvillage.jp/quest/nazofesta-takarush8)にて再演された。',
     technologies: ['企画', '謎制作'],
-    imageUrl: '/src/assets/images/MV/LimitAnswer.png',
+    imageUrl: './MV/LimitAnswer.png',
     type: 'riddle_solving',
     difficulty: 2,
     participants: '2-4人向け',
@@ -33,7 +33,7 @@ export const works: Work[] = [
     description:
       'C-lock-row 制作の謎解き公演。\n2024年10月末の工大祭に向け制作された。',
     technologies: ['企画', 'パズル設計', '物品制作'],
-    imageUrl: '/src/assets/images/MV/AlchemyAcademy.png',
+    imageUrl: './MV/AlchemyAcademy.png',
     type: 'riddle_solving',
     difficulty: 4,
     participants: '2-4人向け',
@@ -47,7 +47,7 @@ export const works: Work[] = [
     description:
       'C-lock-row と工大祭実行委員会の合同企画。\n2024年10月末の工大祭で遊べた周遊型謎解きコンテンツ。\nハードウェアコースを担当しました。\nリンク: https://koudaisai.jp/solving/',
     technologies: ['企画', '謎制作', '物品制作'],
-    imageUrl: '/src/assets/images/MV/RobotMaking.png',
+    imageUrl: './MV/RobotMaking.png',
     type: 'riddle_solving',
     difficulty: 1,
     participants: '1-2人向け',
@@ -64,7 +64,7 @@ export const works: Work[] = [
     description:
       'C-lock-row 制作の謎解き公演。\n[謎キャン2025](https://ivory965016.studio.site/)に向け制作され、[謎解きフェスタ](https://huntersvillage.jp/quest/nazofesta-takarush18)にて再演された。',
     technologies: ['企画', '謎制作'],
-    imageUrl: '/src/assets/images/MV/TOPSPOT.png',
+    imageUrl: './MV/TOPSPOT.png',
     type: 'riddle_solving',
     difficulty: 5,
     participants: '3-4人向け',
@@ -78,7 +78,7 @@ export const works: Work[] = [
     description:
       'C-lock-row 制作の謎解きコンテンツ。\n2025年3月の[謎キャン2025](https://ivory965016.studio.site/)に向け制作された。\n\nWeb (解答判定サイト) 制作も担当した。',
     technologies: ['企画', '謎制作', 'Web制作', 'html'],
-    imageUrl: '/src/assets/images/MV/Mieruna.png',
+    imageUrl: './MV/Mieruna.png',
     type: 'riddle_solving',
     difficulty: 4,
     participants: '1-2人向け',
@@ -92,7 +92,7 @@ export const works: Work[] = [
     description:
       'VRChat で遊べる謎解きゲーム。\nリンク: https://vrchat.com/home/launch?worldId=wrld_75aedc87-3557-45fe-b29d-740e6957ade5',
     technologies: ['謎制作'],
-    imageUrl: '/src/assets/images/MV/Rooms.png',
+    imageUrl: './MV/Rooms.png',
     type: 'riddle_solving',
     difficulty: 3,
     participants: '1-4人向け',
@@ -107,7 +107,7 @@ export const works: Work[] = [
     description:
       '2024年冬に traP が主催で行った 冬ハッカソンで制作したゲーム。\n\nUnity と C# を使用して開発しました。\n\n[リンク]()',
     technologies: ['プログラミング担当'],
-    imageUrl: '/src/assets/images/MV/WarpHorizon.png',
+    imageUrl: './MV/WarpHorizon.png',
     type: 'game',
     eventDate: '2025年2月',
     role: 'プログラミング担当',
