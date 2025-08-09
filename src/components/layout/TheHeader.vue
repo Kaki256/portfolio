@@ -18,9 +18,7 @@ const name = 'Pina641'
   <header class="header">
     <div class="logo">
       <h1>{{ name }}</h1>
-      <p class="tagline">
-        Developer & Riddle Enthusiast
-      </p>
+      <p class="tagline">Developer & Riddle Enthusiast</p>
     </div>
 
     <button
@@ -36,28 +34,16 @@ const name = 'Pina641'
     <nav :class="['nav', { 'nav-open': isMenuOpen }]">
       <ul class="nav-list">
         <li>
-          <a
-            href="#about"
-            @click="isMenuOpen = false"
-          >About</a>
+          <a href="#about" @click="isMenuOpen = false">About</a>
         </li>
         <li>
-          <a
-            href="#works"
-            @click="isMenuOpen = false"
-          >Works</a>
+          <a href="#works" @click="isMenuOpen = false">Works</a>
         </li>
         <li>
-          <a
-            href="#love-riddles"
-            @click="isMenuOpen = false"
-          >Love Riddles</a>
+          <a href="#love-riddles" @click="isMenuOpen = false">Love Riddles</a>
         </li>
         <li>
-          <a
-            href="#skills"
-            @click="isMenuOpen = false"
-          >Skills</a>
+          <a href="#skills" @click="isMenuOpen = false">Skills</a>
         </li>
       </ul>
 
@@ -125,7 +111,7 @@ const name = 'Pina641'
               src="/logos/traP_logo_icon.svg"
               alt="traP Logo"
               class="logo-image trap-logo"
-            >
+            />
           </div>
           <div class="link-text">
             <span class="service-name">traP</span>
@@ -144,7 +130,7 @@ const name = 'Pina641'
               src="/logos/AtCoder_logo.png"
               alt="AtCoder Logo"
               class="logo-image atcoder-logo"
-            >
+            />
           </div>
           <div class="link-text">
             <span class="service-name">AtCoder</span>
@@ -154,11 +140,7 @@ const name = 'Pina641'
       </div>
     </nav>
 
-    <div
-      v-if="isMenuOpen"
-      class="nav-overlay"
-      @click="closeMenu"
-    />
+    <div v-if="isMenuOpen" class="nav-overlay" @click="closeMenu" />
   </header>
 </template>
 
@@ -167,15 +149,15 @@ const name = 'Pina641'
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
   position: relative;
   background-image: linear-gradient(
     to right,
     var(--primary-color),
     var(--secondary-color)
   );
-  border-radius: 0 0 10px 10px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
 }
 
 .logo {
@@ -208,10 +190,10 @@ const name = 'Pina641'
 .nav-list a {
   color: white;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   padding: 0.5rem 0;
   position: relative;
-  transition: all 0.3s;
+  transition: var(--transition-ease-in-out);
 }
 
 .nav-list a::after {
@@ -258,7 +240,7 @@ const name = 'Pina641'
   width: 100%;
   height: 100%;
   background: rgba(255, 255, 255, 0.2);
-  transition: all 0.4s ease;
+  transition: var(--transition-card-hover);
   z-index: 1;
 }
 
@@ -272,7 +254,7 @@ const name = 'Pina641'
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: var(--border-radius-circle);
   background: rgba(255, 255, 255, 0.2);
   position: relative;
   z-index: 2;
@@ -287,11 +269,11 @@ const name = 'Pina641'
   width: 20px;
   height: 20px;
   object-fit: contain;
-  border-radius: 2px;
+  border-radius: var(--border-radius-sm);
 }
 
 .text-logo {
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
   font-size: 12px;
   color: white;
   display: flex;
@@ -326,7 +308,7 @@ const name = 'Pina641'
 
 .user-name {
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   line-height: 1;
 }
 
@@ -348,7 +330,7 @@ const name = 'Pina641'
 
 .social-link:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-md);
 }
 
 .menu-toggle {
@@ -367,8 +349,8 @@ const name = 'Pina641'
   width: 100%;
   height: 3px;
   background-color: white;
-  border-radius: 3px;
-  transition: all 0.3s;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-ease-in-out);
 }
 
 @media (max-width: 768px) {
@@ -385,7 +367,7 @@ const name = 'Pina641'
     height: 100vh;
     background-color: var(--primary-color);
     padding: 6rem 2rem 2rem;
-    transition: right 0.3s ease;
+    transition: var(--transition-ease-in-out);
     z-index: 999;
   }
 

@@ -19,4 +19,5 @@ export interface Work {
   collaborators?: string[] // 共同制作者
   eventFormat?: string // ルーム型・ホール型・周遊型など
   duration?: string // 所要時間（例：「約60分」「40-50分」など）
+  isInternal?: boolean // traP内部限定かどうか
 }

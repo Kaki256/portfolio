@@ -1,5 +1,5 @@
-import eslintPluginVue from 'eslint-plugin-vue';
-import tseslint from 'typescript-eslint';
+import eslintPluginVue from 'eslint-plugin-vue'
+import tseslint from 'typescript-eslint'
 
 export default [
   {
@@ -19,4 +19,4 @@ export default [
       'vue/no-v-html': 'off', // DOMPurifyでサニタイズしているため無効化
     },
   },
-];
+]

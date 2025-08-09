@@ -23,15 +23,8 @@ const filterWorks = () => {
   return works.value.filter((work) => work.type === activeFilter.value)
 }
 
+// 展開はモーダル化するため、expandedWorkは使用しないが互換のため残す
 const expandedWork = ref<string | null>(null)
-
-const toggleExpand = (id: string) => {
-  if (expandedWork.value === id) {
-    expandedWork.value = null
-  } else {
-    expandedWork.value = id
-  }
-}
 
 const setFilter = (filter: string) => {
   activeFilter.value = filter
@@ -75,6 +68,10 @@ const getTypeLabel = (type: string) => {
 const fullscreenImage = ref<string | null>(null)
 const showImageModal = ref(false)
 
+// 詳細モーダル
+const showWorkModal = ref(false)
+const selectedWork = ref<Work | null>(null)
+
 // プレースホルダー画像かどうかを判定する関数を追加
 const isPlaceholderImage = (url?: string): boolean => {
   if (!url) return true // URLがない場合もプレースホルダー扱い
@@ -99,14 +96,34 @@ const closeImageModal = () => {
   showImageModal.value = false
   fullscreenImage.value = null
 
-  // スクロールを再有効化
-  document.body.style.overflow = ''
+  // 他のモーダルが開いていない場合のみスクロールを再有効化
+  if (!showWorkModal.value) {
+    document.body.style.overflow = ''
+  }
+}
+
+// 作品詳細モーダルの開閉
+const openWorkModal = (work: Work) => {
+  selectedWork.value = work
+  showWorkModal.value = true
+  document.body.style.overflow = 'hidden'
+}
+const closeWorkModal = () => {
+  showWorkModal.value = false
+  selectedWork.value = null
+  // 次フレームで確実に解除（競合回避）。他モーダルが無いときのみ解除
+  requestAnimationFrame(() => {
+    if (!showImageModal.value) {
+      document.body.style.overflow = ''
+    }
+  })
 }
 
 // Escキーでモーダルを閉じる
 const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && showImageModal.value) {
-    closeImageModal()
+  if (event.key === 'Escape') {
+    if (showImageModal.value) closeImageModal()
+    if (showWorkModal.value) closeWorkModal()
   }
 }
 
@@ -117,20 +134,51 @@ const renderMarkdown = (text?: string) => {
   return DOMPurify.sanitize(rendered)
 }
 
+const target = ref<HTMLElement | null>(null)
+const isVisible = ref(false)
+
+let observer: IntersectionObserver
+
 // イベントリスナーの設定
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown)
+
+  if (!target.value) return
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isVisible.value = true
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    {
+      threshold: 0.1,
+    },
+  )
+
+  observer.observe(target.value)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown)
   // ページ離脱時にスクロールを確実に再有効化
   document.body.style.overflow = ''
+
+  if (observer && target.value) {
+    observer.unobserve(target.value)
+  }
 })
 </script>
 
 <template>
-  <div class="works-container">
+  <div
+    ref="target"
+    class="works-container"
+    :class="{ 'is-visible': isVisible }"
+  >
     <h2>Works</h2>
 
     <div class="works-intro">
@@ -143,25 +191,28 @@ onUnmounted(() => {
     <!-- フィルターボタン -->
     <div class="filter-buttons">
       <button
-        :class="['filter-btn', { active: activeFilter === 'all' }]"
+        :class="['filter-button', { active: activeFilter === 'all' }]"
         @click="setFilter('all')"
       >
         すべて
       </button>
       <button
-        :class="['filter-btn', { active: activeFilter === 'development' }]"
+        :class="['filter-button', { active: activeFilter === 'development' }]"
         @click="setFilter('development')"
       >
         開発プロジェクト
       </button>
       <button
-        :class="['filter-btn', { active: activeFilter === 'riddle_solving' }]"
+        :class="[
+          'filter-button',
+          { active: activeFilter === 'riddle_solving' },
+        ]"
         @click="setFilter('riddle_solving')"
       >
         謎解き
       </button>
       <button
-        :class="['filter-btn', { active: activeFilter === 'game' }]"
+        :class="['filter-button', { active: activeFilter === 'game' }]"
         @click="setFilter('game')"
       >
         ゲーム
@@ -173,7 +224,6 @@ onUnmounted(() => {
         v-for="work in filterWorks()"
         :key="work.id"
         class="work-card"
-        :class="{ expanded: expandedWork === work.id }"
       >
         <div class="work-image">
           <img
@@ -199,7 +249,15 @@ onUnmounted(() => {
         </div>
 
         <div class="work-content">
-          <h3>{{ work.title }}</h3>
+          <h3>
+            {{ work.title }}
+            <span
+              v-if="work.isInternal"
+              class="internal-badge"
+            >
+              (traP内限定)
+            </span>
+          </h3>
 
           <div
             v-if="work.type === 'riddle_solving' || work.type === 'game'"
@@ -226,60 +284,6 @@ onUnmounted(() => {
             class="work-description"
             v-html="renderMarkdown(work.description)"
           />
-
-          <!-- 謎解き公演の追加情報 -->
-          <div
-            v-if="work.type === 'game' && expandedWork === work.id"
-            class="show-details"
-          >
-            <p v-if="work.location">
-              <strong>会場:</strong> {{ work.location }}
-            </p>
-            <p v-if="work.eventFormat">
-              <strong>形式:</strong> {{ work.eventFormat }}
-            </p>
-            <p v-if="work.duration">
-              <strong>所要時間:</strong> {{ work.duration }}
-            </p>
-            <p v-if="work.participants">
-              <strong>参加者:</strong>
-              <span v-html="renderMarkdown(work.participants)" />
-            </p>
-            <p v-if="work.role">
-              <strong>担当:</strong>
-              <span v-html="renderMarkdown(work.role)" />
-            </p>
-            <p v-if="work.collaborators && work.collaborators.length">
-              <strong>協力:</strong><span
-                v-html="renderMarkdown(work.collaborators.join('、'))"
-              />
-            </p>
-          </div>
-
-          <!-- 謎解きゲームの追加情報 -->
-          <div
-            v-if="work.type === 'riddle_solving' && expandedWork === work.id"
-            class="game-details"
-          >
-            <p
-              v-if="work.eventFormat"
-              class="puzzle-format"
-            >
-              <strong>形式:</strong> {{ work.eventFormat }}
-            </p>
-            <p
-              v-if="work.duration"
-              class="duration"
-            >
-              <strong>所要時間:</strong> {{ work.duration }}
-            </p>
-            <p v-if="work.participants">
-              <strong>対象:</strong> {{ work.participants }}
-            </p>
-            <p v-if="work.role">
-              <strong>担当:</strong> {{ work.role }}
-            </p>
-          </div>
 
           <div class="tech-tags">
             <span
@@ -319,38 +323,188 @@ onUnmounted(() => {
 
             <button
               class="toggle-details-button"
-              @click="toggleExpand(work.id)"
+              @click="openWorkModal(work)"
             >
-              {{ expandedWork === work.id ? '閉じる' : '詳細を見る' }}
+              詳細を見る
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 画像モーダル -->
-    <div
-      v-if="showImageModal"
-      class="image-modal"
-      @click="closeImageModal"
-    >
+    <!-- 画像モーダル（body 直下へテレポート） -->
+    <teleport to="body">
       <div
-        class="modal-content"
-        @click.stop
+        v-if="showImageModal"
+        class="image-modal"
+        @click="closeImageModal"
       >
-        <button
-          class="close-modal"
-          @click="closeImageModal"
+        <div
+          class="modal-content"
+          @click.stop
         >
-          ×
-        </button>
-        <img
-          :src="fullscreenImage || ''"
-          alt="拡大画像"
-          class="modal-image"
-        >
+          <button
+            class="close-modal"
+            @click="closeImageModal"
+          >
+            ×
+          </button>
+          <img
+            :src="fullscreenImage || ''"
+            alt="拡大画像"
+            class="modal-image"
+          >
+        </div>
       </div>
-    </div>
+    </teleport>
+
+    <!-- 作品詳細モーダル（body 直下へテレポート） -->
+    <teleport to="body">
+      <div
+        v-if="showWorkModal && selectedWork"
+        class="work-modal"
+        @click="closeWorkModal"
+      >
+        <div
+          class="work-modal-content"
+          role="dialog"
+          aria-modal="true"
+          @click.stop
+        >
+          <button
+            class="close-modal"
+            type="button"
+            aria-label="閉じる"
+            @click="closeWorkModal"
+          >
+            ×
+          </button>
+          <div class="work-modal-header">
+            <div
+              class="work-type-badge"
+              :class="selectedWork.type"
+            >
+              {{ getTypeLabel(selectedWork.title) }}
+            </div>
+            <h3 class="work-modal-title">
+              {{ selectedWork.title }}
+              <span
+                v-if="selectedWork.isInternal"
+                class="internal-badge"
+              >
+                (traP内限定)
+              </span>
+            </h3>
+          </div>
+          <div class="work-modal-body">
+            <div
+              v-if="selectedWork.imageUrl && !isPlaceholderImage(selectedWork.imageUrl)"
+              class="work-modal-image"
+              role="button"
+              tabindex="0"
+              aria-label="画像を拡大表示"
+              @click="openFullscreenImage(selectedWork.imageUrl, $event)"
+            >
+              <img
+                :src="selectedWork.imageUrl"
+                :alt="selectedWork.title"
+              >
+            </div>
+            <div
+              class="work-modal-description"
+              v-html="renderMarkdown(selectedWork.description)"
+            />
+
+            <!-- タイプ別メタ情報 -->
+            <div
+              v-if="selectedWork.type === 'game'"
+              class="work-modal-extra"
+            >
+              <p v-if="selectedWork.location">
+                <strong>会場:</strong>
+                {{ selectedWork.location }}
+              </p>
+              <p v-if="selectedWork.eventFormat">
+                <strong>形式:</strong>
+                {{ selectedWork.eventFormat }}
+              </p>
+              <p v-if="selectedWork.duration">
+                <strong>所要時間:</strong>
+                {{ selectedWork.duration }}
+              </p>
+              <p v-if="selectedWork.participants">
+                <strong>参加者:</strong>
+                <span v-html="renderMarkdown(selectedWork.participants)" />
+              </p>
+              <p v-if="selectedWork.role">
+                <strong>担当:</strong>
+                <span v-html="renderMarkdown(selectedWork.role)" />
+              </p>
+              <p v-if="selectedWork.collaborators && selectedWork.collaborators.length">
+                <strong>協力:</strong>
+                <span v-html="renderMarkdown(selectedWork.collaborators.join('、'))" />
+              </p>
+            </div>
+            <div
+              v-else-if="selectedWork.type === 'riddle_solving'"
+              class="work-modal-extra"
+            >
+              <p v-if="selectedWork.eventFormat">
+                <strong>形式:</strong>
+                {{ selectedWork.eventFormat }}
+              </p>
+              <p v-if="selectedWork.duration">
+                <strong>所要時間:</strong>
+                {{ selectedWork.duration }}
+              </p>
+              <p v-if="selectedWork.participants">
+                <strong>対象:</strong>
+                {{ selectedWork.participants }}
+              </p>
+              <p v-if="selectedWork.role">
+                <strong>担当:</strong>
+                {{ selectedWork.role }}
+              </p>
+            </div>
+
+            <!-- 技術タグ -->
+            <div class="tech-tags">
+              <span
+                v-for="tech in selectedWork.technologies"
+                :key="tech"
+                :class="['tech-tag', getRandomColorClass(tech)]"
+              >
+                {{ tech }}
+              </span>
+            </div>
+
+            <!-- リンク -->
+            <div class="work-modal-links">
+              <a
+                v-if="selectedWork.demoUrl"
+                :href="selectedWork.demoUrl"
+                class="work-link link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="link-icon">🔗</span>
+                {{ selectedWork.type === 'development' ? 'Demo' : 'Play' }}
+              </a>
+              <a
+                v-if="selectedWork.repoUrl"
+                :href="selectedWork.repoUrl"
+                class="work-link repo"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="link-icon">📦</span>
+                GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 
@@ -358,27 +512,45 @@ onUnmounted(() => {
 .works-container {
   max-width: 1000px;
   margin: 0 auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
+.works-container.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .works-intro {
   text-align: center;
   max-width: 800px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 3rem;
 }
 
-/* フィルターボタン */
+.section-last-updated {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-color-light);
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
 .filter-buttons {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  gap: 0.8rem;
-  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 3rem;
 }
 
-.filter-btn {
-  background-color: white;
+.filter-button {
+  background-color: var(--button-background-color);
   border: 2px solid var(--secondary-color);
-  color: var(--secondary-color);
+  color: var(--button-text-color);
   padding: 0.5rem 1.2rem;
   border-radius: 25px;
   font-weight: 600;
@@ -386,12 +558,12 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
-.filter-btn.active,
-.filter-btn:hover {
-  background-color: var(--secondary-color);
-  color: white;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 206, 201, 0.3);
+.filter-button.active,
+.filter-button:hover {
+  background-color: var(--button-hover-background-color);
+  color: var(--button-hover-text-color);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-md);
 }
 
 .works-grid {
@@ -401,10 +573,10 @@ onUnmounted(() => {
 }
 
 .work-card {
-  background-color: white;
+  background-color: var(--card-background-color);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px var(--card-shadow-color);
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   height: 460px;
@@ -413,12 +585,7 @@ onUnmounted(() => {
 
 .work-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-}
-
-.work-card.expanded {
-  grid-column: span 2;
-  height: auto;
+  box-shadow: var(--box-shadow-lg);
 }
 
 .work-image {
@@ -438,28 +605,17 @@ onUnmounted(() => {
   transform: scale(1.05);
 }
 
-/* 展開時の画像がクリック可能なことを示すスタイル */
-.work-image.clickable {
-  cursor: zoom-in;
-}
-
-.work-image.clickable .work-overlay span {
-  background-color: rgba(0, 0, 0, 0.5);
-  border: none;
-  padding: 0.5rem 1rem;
-}
-
 /* 作品タイプバッジ */
 .work-type-badge {
   position: absolute;
   top: 1rem;
   right: 1rem;
   padding: 0.3rem 0.8rem;
-  border-radius: 20px;
+  border-radius: var(--border-radius-lg);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: white;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-sm);
 }
 
 .work-type-badge.development {
@@ -489,14 +645,6 @@ onUnmounted(() => {
   z-index: 5;
 }
 
-.work-overlay span {
-  color: white;
-  font-weight: 600;
-  border: 2px solid white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-}
-
 .work-card:hover .work-overlay {
   opacity: 1;
 }
@@ -508,14 +656,16 @@ onUnmounted(() => {
   height: calc(100% - 200px);
 }
 
-.work-card.expanded .work-content {
-  height: auto;
-}
-
 .work-card h3 {
   margin: 0 0 0.75rem;
   color: var(--primary-color);
   font-size: 1.4rem;
+}
+
+.internal-badge {
+  font-size: 0.9rem;
+  color: #e17055;
+  font-weight: var(--font-weight-normal);
 }
 
 /* 謎解き作品のメタ情報 */
@@ -549,30 +699,7 @@ onUnmounted(() => {
   white-space: pre-line;
 }
 
-.work-card.expanded .work-description {
-  white-space: pre-line;
-}
-
-/* 謎解き公演・ゲームの追加詳細 */
-.show-details,
-.game-details {
-  background-color: rgba(0, 0, 0, 0.03);
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-}
-
-.show-details p,
-.game-details p {
-  margin-bottom: 0.5rem;
-}
-
-.show-details p:last-child,
-.game-details p:last-child {
-  margin-bottom: 0;
-}
-
+/* 技術タグ */
 .tech-tags {
   display: flex;
   flex-wrap: wrap;
@@ -582,9 +709,9 @@ onUnmounted(() => {
 
 .tech-tag {
   padding: 0.3rem 0.8rem;
-  border-radius: 15px;
+  border-radius: var(--border-radius-md);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .tech-tag.primary {
@@ -642,45 +769,11 @@ onUnmounted(() => {
 
 .work-link:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-md);
 }
 
 .link-icon {
   font-size: 1.1rem;
-}
-
-/* 拡大ボタンのスタイル */
-.zoom-button {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: all 0.2s ease;
-  z-index: 10;
-  opacity: 0;
-  transform: scale(0.8);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* カードホバー時にボタンを表示 */
-.work-card:hover .zoom-button {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.zoom-button:hover {
-  background: white;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* 詳細表示ボタンのスタイル */
@@ -688,12 +781,12 @@ onUnmounted(() => {
   background-color: white;
   color: var(--primary-color);
   border: 2px solid white;
-  border-radius: 20px;
+  border-radius: var(--border-radius-lg);
   padding: 0.5rem 1.2rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transition: var(--transition-ease-in-out);
+  box-shadow: var(--box-shadow-sm);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -702,11 +795,6 @@ onUnmounted(() => {
 .details-button::before {
   content: '📷'; /* 画像アイコン */
   font-size: 1.2rem;
-}
-
-/* 画像がない場合のアイコン */
-.work-image:not([src]) + .work-overlay .details-button::before {
-  content: '📝'; /* 詳細アイコン */
 }
 
 /* カード下部の詳細表示ボタン */
@@ -733,7 +821,7 @@ onUnmounted(() => {
   background-color: var(--primary-color);
   color: white;
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3);
+  box-shadow: var(--box-shadow-md);
 }
 
 /* 画像モーダルのスタイル */
@@ -747,9 +835,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 2rem;
-  box-sizing: border-box;
+  z-index: 10000; /* 他の装飾より常に上 */
+  padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
 }
 
 .modal-content {
@@ -757,6 +844,64 @@ onUnmounted(() => {
   max-width: 90vw;
   max-height: 90vh;
   animation: fadeIn 0.3s ease-out;
+}
+
+/* 画像モーダル/作品モーダルの内側はパディング込みで幅・高さを計算 */
+.modal-content,
+.work-modal-content {
+  box-sizing: border-box;
+}
+
+/* 作品詳細モーダルの横スクロール抑制と余白の最適化 */
+.work-modal-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 90vh; /* スクロール前提の上限 */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 本文・追加情報・タグの省略/高さ制限を解除（後勝ちで上書き） */
+.work-modal-description {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: initial;
+  line-clamp: initial;
+}
+.work-modal-extra {
+  max-height: none;
+  overflow: visible;
+}
+.work-modal-body .tech-tags {
+  max-height: none;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .work-modal-content {
+    width: clamp(320px, 94vw, 900px);
+    max-height: 88vh; /* モバイルは少し余裕 */
+  }
+  .work-modal-image, .work-modal-image img {
+    max-height: 40vh;
+  }
+  .work-modal-description {
+    line-clamp: 7; /* 標準プロパティ */
+    -webkit-line-clamp: 7;
+  }
+  .work-modal-extra {
+    max-height: 24vh;
+  }
+}
+
+/* 画像クリックで拡大を示す */
+.work-modal-image { cursor: zoom-in; }
+
+/* モーダル内画像は小さめ（相対値） */
+.work-modal-image { max-height: 35vh; }
+.work-modal-image img { max-height: 35vh; }
+@media (max-width: 768px) {
+  .work-modal-image { max-height: 40vh; }
+  .work-modal-image img { max-height: 40vh; }
 }
 
 @keyframes fadeIn {
@@ -787,14 +932,14 @@ onUnmounted(() => {
   height: 36px;
   background-color: rgba(255, 255, 255, 0.2);
   border: none;
-  border-radius: 50%;
+  border-radius: var(--border-radius-circle);
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: var(--transition-ease-in-out);
 }
 
 .close-modal:hover {
@@ -802,44 +947,91 @@ onUnmounted(() => {
   transform: scale(1.1);
 }
 
-/* モバイル向け調整 */
+/* 作品詳細モーダル */
+.work-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+}
+
+.work-modal-content {
+  position: relative;
+  width: min(900px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--card-background-color);
+  border-radius: 12px;
+  box-shadow: var(--box-shadow-lg);
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+
+  /* 作品詳細モーダル内の余白を調整して、右上の閉じるボタンと重ならないようにする */
+  padding-right: 3rem; /* スクロールバーや要素が被らない余白 */
+  padding-top: 2.75rem; /* ヘッダがボタン下に潜り込まないように */
+}
+
+/* 作品詳細モーダルのメイン画像（相対値のみで制御） */
+.work-modal-image {
+  width: 100%;
+  max-height: 60vh; /* ビューポートに対する相対上限 */
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 以前の固定値 height 指定をコメントアウト（残骸除去） */
+/* .work-modal-image { height: min(360px, 40vh); } */
+/* @media (max-width: 768px) { .work-modal-image { height: min(320px, 40vh); } } */
+
+.work-modal-image img {
+  max-width: 100%;
+  max-height: 60vh; /* 高さのみ相対で固定 */
+  width: auto;
+  height: auto; /* アスペクト比維持 */
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
 @media (max-width: 768px) {
-  .filter-buttons {
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 1rem;
+  .work-modal-image {
+    max-height: 55vh;
   }
+  .work-modal-image img {
+    max-height: 55vh;
+  }
+}
 
-  .filter-btn {
-    flex: 0 0 auto;
-    padding: 0.4rem 1rem;
-    font-size: 0.9rem;
-  }
+/* モーダル内のタイプバッジは通常フローで表示（カード用の absolute を無効化） */
+.work-modal-content .work-type-badge {
+  position: static;
+  top: auto;
+  right: auto;
+  box-shadow: none;
+}
 
-  .works-grid {
-    grid-template-columns: 1fr;
-  }
+/* 閉じるボタンを前面に */
+.work-modal .close-modal {
+  z-index: 10;
+}
 
-  .work-card.expanded {
-    grid-column: span 1;
-  }
+/* 画像モーダルは常に最前面に */
+.image-modal {
+  z-index: 20000;
+}
 
-  .work-card {
-    height: auto;
-  }
-
-  .work-description {
-    line-clamp: 1;
-    -webkit-line-clamp: 1; /* モバイル表示でも1行に制限 */
-  }
-
-  .modal-content {
-    width: 95vw;
-  }
-
-  .close-modal {
-    top: -30px;
-    right: 0;
-  }
+/* 作品詳細モーダル（後勝ちの定義を正して非スクロール＆相対サイズを維持） */
+.work-modal-content {
+  width: clamp(320px, 92vw, 900px);
+  max-height: 85vh;
+  overflow: hidden; /* 内部スクロール禁止 */
 }
 </style>

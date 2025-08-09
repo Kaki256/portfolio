@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import MarkdownIt from 'markdown-it' // マークダウンライブラリを追加
 import DOMPurify from 'dompurify' // サニタイザーを追加
 import type { RiddleShow } from '../../types/riddle'
@@ -34,20 +34,53 @@ const handleLinkClick = (event: Event) => {
 
 // 最終更新日
 const lastUpdated = '2025年4月18日'
+
+const target = ref<HTMLElement | null>(null)
+const isVisible = ref(false)
+
+let observer: IntersectionObserver
+
+onMounted(() => {
+  if (!target.value) return
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isVisible.value = true
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    {
+      threshold: 0.1,
+    },
+  )
+
+  observer.observe(target.value)
+})
+
+onUnmounted(() => {
+  if (observer && target.value) {
+    observer.unobserve(target.value)
+  }
+})
 </script>
 
 <template>
-  <div class="riddle-shows-container">
-    <h2>好きな謎解き公演</h2>
+  <div
+    ref="target"
+    class="riddle-shows-container"
+    :class="{ 'is-visible': isVisible }"
+  >
+    <h2>Love Riddles</h2>
 
     <div class="riddle-show-intro">
       <p>
         謎解き公演は論理的思考とクリエイティブな発想を融合させる芸術です。
         以下は私が特に感銘を受けた謎解き公演の数々です。
       </p>
-      <p class="section-last-updated">
-        最終更新: {{ lastUpdated }}
-      </p>
+      <p class="section-last-updated">最終更新: {{ lastUpdated }}</p>
     </div>
 
     <div class="riddle-cards">
@@ -60,10 +93,7 @@ const lastUpdated = '2025年4月18日'
         @mouseleave="setHovered(null)"
       >
         <div class="riddle-image">
-          <img
-            :src="show.imageUrl"
-            :alt="show.title"
-          >
+          <img :src="show.imageUrl" :alt="show.title" />
         </div>
 
         <div class="riddle-info">
@@ -83,10 +113,7 @@ const lastUpdated = '2025年4月18日'
               v-html="renderMarkdown(show.description)"
             />
 
-            <div
-              v-if="show.link"
-              class="link-container"
-            >
+            <div v-if="show.link" class="link-container">
               <a
                 :href="show.link"
                 target="_blank"
@@ -109,18 +136,28 @@ const lastUpdated = '2025年4月18日'
 .riddle-shows-container {
   max-width: 1000px;
   margin: 0 auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
+.riddle-shows-container.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .riddle-show-intro {
   text-align: center;
   max-width: 800px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 3rem;
 }
 
 .riddle-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: 2.5rem;
 }
 
 /* 新しいカードスタイル */
@@ -129,15 +166,15 @@ const lastUpdated = '2025年4月18日'
   height: 400px;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px var(--card-shadow-color);
   transition: all 0.4s ease;
-  background-color: white;
+  background-color: var(--card-background-color);
   cursor: pointer;
 }
 
 .riddle-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-lg);
 }
 
 .riddle-image {
@@ -164,7 +201,7 @@ const lastUpdated = '2025年4月18日'
 .riddle-meta {
   display: flex;
   justify-content: space-between;
-  color: #666;
+  color: var(--text-color-light);
   font-size: 0.9rem;
   margin-top: 0.5rem;
 }
@@ -183,8 +220,8 @@ const lastUpdated = '2025年4月18日'
   );
   color: white;
   overflow: hidden;
-  transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border-radius: 12px;
+  transition: var(--transition-card-hover);
+  border-radius: var(--border-radius-md);
   opacity: 0.98;
 }
 
@@ -210,7 +247,7 @@ const lastUpdated = '2025年4月18日'
 .overlay-content h3 {
   font-size: 1.5rem;
   color: #ffffff;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   margin-bottom: 0.8rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   position: relative;
@@ -272,7 +309,7 @@ const lastUpdated = '2025年4月18日'
   bottom: 0.2rem;
   width: 4px;
   background-color: rgba(255, 255, 255, 0.7);
-  border-radius: 2px;
+  border-radius: var(--border-radius-sm);
 }
 
 :deep(.description p) {
@@ -284,8 +321,8 @@ const lastUpdated = '2025年4月18日'
 :deep(.description a) {
   color: #ffffff;
   text-decoration: underline;
-  font-weight: 600;
-  transition: all 0.2s ease;
+  font-weight: var(--font-weight-semibold);
+  transition: var(--transition-ease-in-out);
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
@@ -306,7 +343,7 @@ const lastUpdated = '2025年4月18日'
 
 :deep(.description::-webkit-scrollbar-thumb) {
   background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
+  border-radius: var(--border-radius-sm);
 }
 
 /* リンクスタイル */
@@ -329,7 +366,7 @@ const lastUpdated = '2025年4月18日'
 .riddle-link:hover {
   background-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-md);
 }
 
 .riddle-link .arrow {

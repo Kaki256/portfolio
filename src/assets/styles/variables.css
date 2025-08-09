@@ -1,0 +1,55 @@
+:root {
+  --primary-color: #00a884; /* 少し落ち着いた緑 */
+  --secondary-color: #00897b; /* 深い緑 */
+  --accent-color: #ffc107; /* 明るい黄色 */
+  --text-color: #263238; /* 暗めのテキスト */
+  --text-color-light: #546e7a; /* 明るめのテキスト */
+  --background-color: #e0f2f1; /* 薄いミントグリーン */
+  --section-background-color: transparent;
+  --alternate-section-background-color: transparent;
+  --card-background-color: rgba(255, 255, 255, 0.85);
+  --card-shadow-color: rgba(0, 121, 107, 0.1);
+  --header-background-color: rgba(255, 255, 255, 0.8);
+  --button-background-color: white;
+  --button-text-color: var(--secondary-color);
+  --button-hover-background-color: var(--secondary-color);
+  --button-hover-text-color: white;
+  --section-padding: 4rem 2rem;
+
+  /* New Unification Variables */
+  --border-radius-sm: 4px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 25px;
+  --border-radius-circle: 50%;
+
+  --box-shadow-sm: 0 3px 8px rgba(0, 0, 0, 0.1);
+  --box-shadow-md: 0 5px 10px rgba(0, 206, 201, 0.3);
+  --box-shadow-lg: 0 10px 20px var(--card-shadow-color);
+  --box-shadow-modal: 0 10px 25px rgba(0, 0, 0, 0.5);
+
+  --transition-ease-in-out: all 0.3s ease;
+  --transition-card-hover: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  --font-weight-normal: normal;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+[data-theme='dark'] {
+  --primary-color: #00b894;
+  --secondary-color: #00cec9;
+  --accent-color: #fdcb6e;
+  --text-color: #dfe6e9;
+  --text-color-light: #b2bec3;
+  --background-color: #0f172a; /* 深い夜空の色 */
+  --section-background-color: transparent;
+  --alternate-section-background-color: transparent;
+  --card-background-color: rgba(51, 65, 85, 0.6);
+  --card-shadow-color: rgba(0, 0, 0, 0.4);
+  --header-background-color: rgba(30, 41, 59, 0.8);
+  --button-background-color: rgba(51, 65, 85, 0.8);
+  --button-text-color: #dfe6e9;
+  --button-hover-background-color: var(--secondary-color);
+  --button-hover-text-color: #2d3436;
+}

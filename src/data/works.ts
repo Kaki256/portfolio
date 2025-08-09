@@ -117,8 +117,8 @@ export const works: Work[] = [
     id: 'game2',
     title: 'Cross the C',
     description:
-      '盤面で行われるパズルと室内に散りばめられた謎を解き明かし、隠された秘密を探っていく…',
-    technologies: ['企画', 'パズル制作', 'プログラミング担当'],
+      '氷の床パズルのメカニクスにインスパイアされた、ミステリアスな雰囲気の3Dパズルゲーム。船を島に導くのが目的です。UnityとBlenderで開発され、不穏さと謎めいた感覚を呼び起こすように設計されています。',
+    technologies: ['Unity', 'Blender', 'C#', '企画', 'パズル制作'],
     imageUrl:
       'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/3382690/header.jpg?t=1740986668',
     type: 'game',
@@ -138,5 +138,32 @@ export const works: Work[] = [
     eventDate: '2025年6月',
     role: 'フロントエンド開発',
     collaborators: ['サークルメンバー7名'],
+    isInternal: true,
+  },
+  {
+    id: 'work3',
+    title: '謎解き公演用 日程調整サイト',
+    description:
+      '謎解きやその他のイベントの参加者のスケジュールを調整し、最適なチーム編成を提案するためのWebアプリケーションです。サークルメンバーのみが利用できるプライベートコンテンツとして開発しました。イベントURLを登録するだけで開催情報が自動入力され、参加者はカレンダーから参加可能な日時を選択できます。',
+    technologies: ['Vue.js', 'Node.js', 'Express.js', 'MySQL', 'Cheerio'],
+    imageUrl: 'https://placehold.co/600x400/fd79a8/FFFFFF/png?text=Scheduler',
+    repoUrl: 'https://github.com/Kaki256/scheduler-for-nazotoki',
+    demoUrl: 'https://nazotoki-scheduler.trap.show/',
+    type: 'development',
+    role: '個人開発',
+    isInternal: true,
+  },
+  {
+    id: 'work4',
+    title: 'Cross the C Lounge',
+    description:
+      'オリジナルの氷床パズル「Cross the C」を作成・共有できるウェブアプリケーションです。ステージエディタ、テストプレイ機能、コミュニティとのステージ共有機能を備えています。pnpm Workspacesを利用したモノレポ構成で、フロントエンドはVue.js、バックエンドはNode.jsで開発しました。',
+    technologies: ['Vue.js', 'TypeScript', 'Node.js', 'pnpm', 'Tailwind CSS'],
+    imageUrl: 'https://placehold.co/600x400/a29bfe/FFFFFF/png?text=CTC+Lounge',
+    repoUrl: 'https://github.com/Kaki256/CrossTheCLounge',
+    demoUrl: 'https://ctclounge.trap.show',
+    type: 'development',
+    role: '個人開発',
+    isInternal: true,
   },
 ]

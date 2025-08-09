@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+
 const affiliations = [
   {
     id: 'affiliation1',
@@ -55,18 +57,49 @@ const activities = [
 
 // 最終更新日
 
+const target = ref<HTMLElement | null>(null)
+const isVisible = ref(false)
+
+let observer: IntersectionObserver
+
+onMounted(() => {
+  if (!target.value) return
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isVisible.value = true
+          observer.unobserve(entry.target)
+        }
+      })
+    },
+    {
+      threshold: 0.1,
+    },
+  )
+
+  observer.observe(target.value)
+})
+
+onUnmounted(() => {
+  if (observer && target.value) {
+    observer.unobserve(target.value)
+  }
+})
 </script>
 
 <template>
-  <div class="about-container">
+  <div
+    ref="target"
+    class="about-container"
+    :class="{ 'is-visible': isVisible }"
+  >
     <h2>About Me</h2>
 
     <div class="profile">
       <div class="profile-image">
-        <img
-          src="/profile.png"
-          alt="Profile Image"
-        >
+        <img src="/profile.png" alt="Profile Image" />
       </div>
 
       <div class="profile-content">
@@ -86,9 +119,7 @@ const activities = [
     </div>
 
     <div class="info-section">
-      <h3 class="section-title">
-        <span class="title-icon">🏢</span> 所属
-      </h3>
+      <h3 class="section-title"><span class="title-icon">🏢</span> 所属</h3>
 
       <div class="card-grid affiliations">
         <div
@@ -130,9 +161,7 @@ const activities = [
     </div>
 
     <div class="info-section">
-      <h3 class="section-title">
-        <span class="title-icon">📋</span> 活動
-      </h3>
+      <h3 class="section-title"><span class="title-icon">📋</span> 活動</h3>
 
       <div class="card-grid activities">
         <div
@@ -157,13 +186,23 @@ const activities = [
 .about-container {
   max-width: 900px;
   margin: 0 auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+
+.about-container.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .profile {
   display: flex;
   gap: 2rem;
   align-items: center;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .profile-image {
@@ -175,7 +214,7 @@ const activities = [
   height: auto;
   border-radius: 50%;
   border: 5px solid var(--secondary-color);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px var(--card-shadow-color);
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
@@ -183,7 +222,7 @@ const activities = [
 
 .profile-image img:hover {
   transform: scale(1.05);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--box-shadow-lg);
 }
 
 .profile-content {
@@ -197,13 +236,13 @@ const activities = [
 }
 
 .info-section {
-  margin-bottom: 2.5rem;
+  margin-bottom: 4rem;
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   font-size: 1.6rem;
   color: var(--primary-color);
 }
@@ -211,27 +250,27 @@ const activities = [
 .title-icon {
   font-size: 1.8rem;
   margin-right: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px var(--card-shadow-color);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
   background-color: rgba(0, 184, 148, 0.25);
-  border-radius: 50%;
+  border-radius: var(--border-radius-circle);
 }
 
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .info-card {
   display: flex;
-  background-color: white;
+  background-color: var(--card-background-color);
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 5px 15px var(--card-shadow-color);
   overflow: hidden;
   transition: all 0.3s ease;
   padding: 1.5rem;
@@ -240,7 +279,7 @@ const activities = [
 
 .info-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--box-shadow-lg);
 }
 
 .card-icon {
@@ -258,7 +297,7 @@ const activities = [
 }
 
 .card-content .role {
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   margin-bottom: 0.3rem;
   line-height: 1.4;
   white-space: pre-line;
@@ -266,7 +305,7 @@ const activities = [
 
 .card-content .period {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-color-light);
 }
 
 .interest-tags {
@@ -294,7 +333,7 @@ const activities = [
 
 .interest-tag:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 206, 201, 0.2);
+  box-shadow: var(--box-shadow-md);
   border-color: var(--secondary-color);
 }
 
